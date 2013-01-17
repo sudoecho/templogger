@@ -1,18 +1,24 @@
+#!/usr/bin/env python
 ## Raspberry Pi Temperature Log Analyzer - 2013 Jamie Aitken.
+
 
 import datetime
 import socket
+import sys
 hostname = socket.gethostname()
 now = datetime.datetime.now()
 nowtime = now.strftime('Y-%m-%d %H:%M')
 file = open('/tmp/logs/templog', 'r')
 outfile = open('/home/pi/log/templog', 'w')
+units = 'Celsius'
 templist = []
 temp = []
+args = []
 line = file.readline()
 info = ['Date: ', 'Time: ', 'Temperature: ']
 
-
+for arg in sys.argv:
+        args.append(arg)
 
 while line != '':
         
@@ -34,7 +40,16 @@ def initializetemps():
                 time = data.split(":")[0]
                 sublist.append(time)
                 temps = float(data.split(":")[2])
-                sublist.append(temps)
+                if len(args) > 1:
+                        if args[1] == '-f':
+                                global units
+                                units = 'Fahrenheit'
+                                sublist.append((temps * 9 / 5) + 32)
+                        else:
+                                print('Error.')
+                                return 0
+                else:
+                        sublist.append(temps)
                 temp.append(sublist)
                 x = x + 1
 
@@ -93,16 +108,16 @@ def writeout():
     outfile.write('---------------------------------------------------\n\n')
     outfile.write('Report Generated: ' + str(now) +'\n')
     outfile.write('Log Created: ' + str(temp[0][1]) + '\n\n')
-    outfile.write('Latest Temperature (' + str(latesttime) + '): ' + str(latesttemp) + ' Clesius\n')
-    outfile.write('Highest Recorded Temperature: ' + str(maxnum) + ' Celsius\n')
-    outfile.write('Lowest Recorded Temperature: ' + str(minnum) + ' Celsius\n')
-    outfile.write('Average Temperature: ' + str(avg) + ' Celsius\n\n')
-    outfile.write('Previous Five Temperatures:\n')
-    outfile.write(str(lastfi[1]) + ' ' + str(lastfi[2]) + ' Celsius\n')
-    outfile.write(str(lastfo[1]) + ' ' + str(lastfo[2]) + ' Celsius\n')
-    outfile.write(str(lastth[1]) + ' ' + str(lastth[2]) + ' Celsius\n')
-    outfile.write(str(lasttw[1]) + ' ' + str(lasttw[2]) + ' Celsius\n')
-    outfile.write(str(laston[1]) + ' ' + str(laston[2]) + ' Celsius\n')
+    outfile.write('Latest Temperature (' + str(latesttime) + '): ' + str(latesttemp) + ' ' + str(units) + '\n')
+    outfile.write('Highest Recorded Temperature: ' + str(maxnum) + ' ' + str(units) + '\n')
+    outfile.write('Lowest Recorded Temperature: ' + str(minnum) + ' ' + str(units) + '\n')
+    outfile.write('Average Temperature: ' + str(avg) + ' ' + str(units) + '\n\n')
+##    outfile.write('Previous Five Temperatures:\n')
+##    outfile.write(str(lastfi[1]) + ' ' + str(lastfi[2]) + ' Celsius\n')
+##    outfile.write(str(lastfo[1]) + ' ' + str(lastfo[2]) + ' Celsius\n')
+##    outfile.write(str(lastth[1]) + ' ' + str(lastth[2]) + ' Celsius\n')
+##    outfile.write(str(lasttw[1]) + ' ' + str(lasttw[2]) + ' Celsius\n')
+##    outfile.write(str(laston[1]) + ' ' + str(laston[2]) + ' Celsius\n')
     outfile.close()
 
 print('Generating Logfile...')
