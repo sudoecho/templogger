@@ -10,6 +10,7 @@ now = datetime.datetime.now()
 nowtime = now.strftime('Y-%m-%d %H:%M')
 file = open('/tmp/logs/templog', 'r')
 outfile = open('/home/pi/log/templog', 'w')
+webfile = open('/home/pi/log/index.html','w')
 units = 'Celsius'
 templist = []
 temp = []
@@ -120,6 +121,21 @@ def writeout():
 ##    outfile.write(str(laston[1]) + ' ' + str(laston[2]) + ' Celsius\n')
     outfile.close()
 
+def genweb():
+    webfile.write('<html>\n<head>\n</head>\n<body>')
+    webfile.write('\n---------------------------------------------------<p>\n')
+    webfile.write('Temperature Log Report for ' + str(hostname) + '<p>\n')
+    webfile.write('---------------------------------------------------<p>\n\n')
+    webfile.write('Report Generated: ' + str(now) +'<p>\n')
+    webfile.write('Log Created: ' + str(temp[0][1]) + '<p>\n\n')
+    webfile.write('Latest Temperature (' + str(latesttime) + '): ' + str(latesttemp) + ' ' + str(units) + '<p>\n')
+    webfile.write('Highest Recorded Temperature: ' + str(maxnum) + ' ' + str(units) + '<p>\n')
+    webfile.write('Lowest Recorded Temperature: ' + str(minnum) + ' ' + str(units) + '<p>\n')
+    webfile.write('Average Temperature: ' + str(avg) + ' ' + str(units) + '<p>\n\n')
+    webfile.write('</body>\n</html>\n')
+    webfile.close()
+
+
 print('Generating Logfile...')
 initializetemps()
 latestreading()
@@ -127,4 +143,5 @@ averagetemp()
 lastfive()
 showmax()
 writeout()
+genweb()
 print('Logfile Generation Complete.')
